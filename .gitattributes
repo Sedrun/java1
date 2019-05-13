@@ -1,2 +1,81 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+package training;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.IntStream;
+
+public class TrainingThreads extends Thread {
+	static int interval;
+	static int deb;
+	
+	public TrainingThreads(int interval) {
+		this.interval=interval;
+	}
+	public TrainingThreads(int deb, int interval) {
+		this.interval=interval;
+		this.deb=deb;
+	}
+	
+	public void setInterval(int interval) {
+		this.interval=interval;
+	}
+	
+	// recherche pour un nombre
+	public static int nbrDiv(int nbr) {
+		int j=0;
+		for(int i=1;i<nbr;i++) {
+			if((nbr%i)==0)j++;
+		}
+		return j;
+	}
+	
+	// recherche pour tous les nombres
+	public static int[] tabNbrDiv() {
+		int[] nbrDiv=new int[interval+1];
+		for(int i=deb; i<interval+1;i++) {
+			nbrDiv[i]=nbrDiv(i);
+		}
+		return nbrDiv;
+	}
+	
+	public static int findNbr() {
+		int[] tab = tabNbrDiv();
+		int nbr = tab[0];
+		for(int i=deb; i<interval+1;i++) {
+			if(tab[i]>nbr)nbr=i;
+		}
+		return nbr;
+		
+	}
+	
+	public void run() {
+		int[] tab = tabNbrDiv();
+		int nbr = tab[0];
+		for(int i=deb; i<interval+1;i++) {
+			if(tab[i]>nbr)nbr=i;
+		}
+		System.out.println(nbr);
+	}
+	
+	public static void main(String args[]) {
+		// sans threads
+		TrainingThreads tr = new TrainingThreads(10000);
+		System.out.println(tr.findNbr());
+		// avec threads
+		TrainingThreads p1 = new TrainingThreads(0,4999);
+		TrainingThreads p2 = new TrainingThreads(5001,10000);
+		p1.start();
+		p2.start();
+		System.out.println(p1.deb+" "+p2.deb);
+		try {
+			p1.join();
+			p2.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	
+	}
+}
